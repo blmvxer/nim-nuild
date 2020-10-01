@@ -5,8 +5,10 @@ var
   ssl: string
   opt: string
   compiler: string
+  binName: string
   buildType: string
   buildFile: string
+  installDir: string
   buildString = "nim "
 
 proc readConf() =
@@ -17,6 +19,7 @@ proc readConf() =
       if line.contains("#"):
         discard
       elif line.contains("build="):
+        binName = line.replace("build=", "")
         buildFile = line.replace("build=", "c ")
       elif line.contains("cc="):
         compiler = line.replace("cc=", "")
@@ -26,6 +29,8 @@ proc readConf() =
         ssl = line.replace("ssl=", "")
       elif line.contains("opt="):
         opt = line.replace("opt=", "")
+      elif line.contains("install="):
+        installDir = line.replace("install=", "")
       else:
         discard line
     except EOFError:
@@ -67,4 +72,10 @@ proc main() =
   echo("Building file...")
   let buildResult = execProcess(buildString)
   echo(buildResult)
+  if installDir.isEmptyOrWhitespace:
+    discard
+  else:
+    installDir = (installDir & "/" & binName)
+    let installResult = execProcess("sudo cp " & binName & " " & installDir)
+    echo(installResult)
 main()
