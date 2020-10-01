@@ -70,12 +70,13 @@ proc main() =
   echo("build string: " & buildString & "\n")
   sleep(2000)
   echo("Building file...")
-  let buildResult = execProcess(buildString)
-  echo(buildResult)
+  let compile = execProcess(buildString)
+  discard compile
   if installDir.isEmptyOrWhitespace:
-    discard
+    echo("\nInstall directory not set, binary in current directory")
   else:
+    echo("\nInstalling " & binName.replace(".nim", "") & " to " & installDir)
     installDir = (installDir & "/" & binName)
-    let installResult = execProcess("sudo cp " & binName & " " & installDir)
-    echo(installResult)
+    let install = execProcess("sudo mv " & binName.replace(".nim", "") & " " & installDir)
+    discard install
 main()
