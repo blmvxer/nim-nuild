@@ -70,13 +70,16 @@ proc main() =
   echo("build string: " & buildString & "\n")
   sleep(2000)
   echo("Building file...")
-  let compile = execProcess(buildString)
-  discard compile
-  if installDir.isEmptyOrWhitespace:
-    echo("\nInstall directory not set, binary in current directory")
+  let (output, errn) = execCmdEx(buildString)
+  if errn != 0:
+    echo(output)
   else:
-    echo("\nInstalling " & binName.replace(".nim", "") & " to " & installDir)
-    installDir = (installDir & "/" & binName)
-    let install = execProcess("sudo mv " & binName.replace(".nim", "") & " " & installDir)
-    discard install
+    if installDir.isEmptyOrWhitespace:
+      echo("\nInstall directory not set, binary in current directory")
+    else:
+      binName = binName.replace(".nim", "")
+      echo("\nInstalling " & binName & " to " & installDir)
+      installDir = (installDir & "/" & binName)
+      let install = execProcess("sudo mv " & binName & " " & installDir)
+      discard install
 main()
