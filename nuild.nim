@@ -1,4 +1,4 @@
-import strutils, osproc, os
+import strutils, osproc, os, fab
 
 var
   build = open("build.conf", fmRead)
@@ -29,6 +29,13 @@ proc readConf() =
         ssl = line.replace("ssl=", "")
       elif line.contains("opt="):
         opt = line.replace("opt=", "")
+        if opt == "speed":
+          discard
+        elif opt == "size":
+          discard
+        else:
+          opt = ""
+          red("[!]Nuild read config error, opt=")
       elif line.contains("install="):
         installDir = line.replace("install=", "")
       else:
@@ -64,22 +71,26 @@ proc nuildFile() =
     buildString = (buildString & buildFile)   
   
 proc main() =
-  echo("Reading Configuration File\n\n")
+  white("Reading Configuration File\n\n")
   readConf()
   nuildFile()
-  echo("build string: " & buildString & "\n")
+  white("build string: " & buildString & "\n")
   sleep(2000)
-  echo("Building file...")
+  green("[+]Building file...")
   let (output, errn) = execCmdEx(buildString)
   if errn != 0:
-    echo(output)
+    red(output)
   else:
     if installDir.isEmptyOrWhitespace:
-      echo("\nInstall directory not set, binary in current directory")
+      yellow("\n[!]Install directory not set, binary in current directory")
     else:
-      binName = binName.replace(".nim", "")
-      echo("\nInstalling " & binName & " to " & installDir)
-      installDir = (installDir & "/" & binName)
-      let install = execProcess("sudo mv " & binName & " " & installDir)
-      discard install
+      try:
+        binName = binName.replace(".nim", "")
+        yellow("\n[!]Installing " & binName & " to " & installDir)
+        installDir = (installDir & "/" & binName)
+        let install = execProcess("sudo mv " & binName & " " & installDir)
+        discard install
+        green("[+]Installed")
+      except:
+        red("[!]Error during installation")
 main()
