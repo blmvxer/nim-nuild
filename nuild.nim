@@ -9,6 +9,7 @@ var
   buildType: string
   buildFile: string
   installDir: string
+  termux: bool
   buildString = "nim "
 
 proc readConf() =
@@ -36,6 +37,13 @@ proc readConf() =
         else:
           opt = ""
           red("[!]Nuild read config error, opt=")
+      elif line.contains("termux="):
+        if line.replace("termux=", "") == "true":
+          termux=true
+        elif line.replace("termux=", "") == "false":
+          termux=false
+        else:
+          termux=false
       elif line.contains("install="):
         installDir = line.replace("install=", "")
       else:
@@ -87,10 +95,22 @@ proc main() =
       try:
         binName = binName.replace(".nim", "")
         yellow("\n[!]Installing " & binName & " to " & installDir)
-        installDir = (installDir & "/" & binName)
-        let install = execProcess("sudo mv " & binName & " " & installDir)
+        if termux == false:
+          installDir = (installDir & "/" & binName)
+          let install = execProcess("sudo mv " & binName & " " & installDir)
+          discard install
+          green("[+]Installed")
+          quit(0)
+        elif termux == true and binName == "nuild":
+          installDir = ("$PREFIX/bin/" & binName)          
+        elif termux == true and binName != "nuild":
+          installDir = (installDir & "/" & binName)
+        else:
+         discard
+        let install = execProcess("mv " & binName & " " & installDir)
         discard install
         green("[+]Installed")
+        quit(0)
       except:
         red("[!]Error during installation")
 main()
