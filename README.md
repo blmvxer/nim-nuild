@@ -11,6 +11,7 @@ This will install nuild to your /usr/bin folder<br><br>
 A config file must be named build.conf and have the following contents<br><br>
 build=mynimfile.nim<br><br>
 any other configuration can be added by looking at the build.config for nuild<br><br>
+Another config file must be named deps.conf and contain at least one #<br><br>
 <b>WIP</b><br>
 Not all the arguments for the compiler have been implemented as of this time
 

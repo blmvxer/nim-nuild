@@ -1,8 +1,6 @@
 import strutils, osproc, os, fab
 
 var
-  build = open("build.conf", fmRead)
-  depConf = open("deps.conf", fmRead)
   opt: string
   compiler: string
   threads: string
@@ -24,7 +22,8 @@ var
   infCheck: bool
   nilCheck: bool
   refCheck: bool
-
+  build = open("build.conf", fmRead)
+  depConf = open("deps.conf", fmRead)
 
 proc readConf() =
   while true:
