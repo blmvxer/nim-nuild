@@ -124,11 +124,11 @@ proc depCheck() =
         break
 
 proc main() =
-  white("Reading Configuration File\n")
+  white("Reading Configuration File")
   readConf()
   depCheck()
   nuildFile()
-  white("build string: " & buildString & "\n")
+  white("\nbuild string: " & buildString & "\n")
   sleep(2000)
   green("[+]Building file...")
   let (output, errn) = execCmdEx(buildString)
@@ -140,17 +140,19 @@ proc main() =
     else:
       try:
         binName = binName.replace(".nim", "")
-        yellow("\n[!]Installing " & binName & " to " & installDir)
         if termux == false:
+          yellow("\n[!]Installing " & binName & " to " & installDir & "\n", nl=true)
           installDir = (installDir & "/" & binName)
           let install = execProcess("sudo mv " & binName & " " & installDir)
           discard install
           green("[+]Installed")
           quit(0)
         elif termux == true and binName == "nuild":
-          installDir = ("$PREFIX/bin/" & binName)          
+          installDir = ("$PREFIX/bin/" & binName)
+          yellow("\n[!]Installing " & binName & " to " & installDir & "\n", nl=true)  
         elif termux == true and binName != "nuild":
           installDir = (installDir & "/" & binName)
+          yellow("\n[!]Installing " & binName & " to " & installDir & "\n", nl=true)
         else:
          discard
         let install = execProcess("mv " & binName & " " & installDir)
