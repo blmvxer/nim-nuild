@@ -16,16 +16,9 @@ var
   buildType: bool
   buildString = "nim "
   ssl: bool
-  objCheck: bool
-  fieldCheck: bool
-  rangeCheck: bool
-  boundCheck: bool
-  overflowCheck: bool
-  floatCheck: bool
-  nanCheck: bool
-  infCheck: bool
-  nilCheck: bool
-  refCheck: bool
+  stackTrace: bool
+  lineTrace: bool
+  debugger: string
   build = open("build.conf", fmRead)
   depConf = open("deps.conf", fmRead)
 
@@ -41,6 +34,15 @@ proc readConf() =
         buildFile = line.replace("build=", "c ")
       elif line.contains("cc="):
         compiler = line.replace("cc=", "")
+      elif line.contains("stackTrace="):
+        stackTrace = parseBool(line.replace("stackTrace=", ""))
+      elif line.contains("lineTrace="):
+        lineTrace = parseBool(line.replace("lineTrace=", ""))
+      elif line.contains("debugger="):
+        if parseBool(line.replace("debugger=", "")) == false:
+          discard
+        else:
+          debugger = line.replace("debugger=", "")
       elif line.contains("release="):
         buildType = parseBool(line.replace("release=", ""))
       elif line.contains("ssl="):
@@ -88,7 +90,7 @@ proc nuildFile() =
     discard
   else:
     buildString = (buildString & "--opt:" & opt & " ")
-  if threads. isEmptyOrWhitespace:
+  if threads.isEmptyOrWhitespace:
     discard
   else:
     buildString = (buildString & threads & " ")
