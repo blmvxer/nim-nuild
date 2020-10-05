@@ -2,6 +2,7 @@ import strutils, osproc, os, fab
 
 var
   build = open("build.conf", fmRead)
+  depConf = open("deps.conf", fmRead)
   ssl: string
   opt: string
   compiler: string
@@ -10,6 +11,7 @@ var
   buildFile: string
   installDir: string
   termux: bool
+  deps: bool
   buildString = "nim "
 
 proc readConf() =
@@ -46,6 +48,13 @@ proc readConf() =
           termux=false
       elif line.contains("install="):
         installDir = line.replace("install=", "")
+      elif line.contains("deps="):
+        if line.replace("deps=", "") == "false":
+          deps=false
+        elif line.replace("deps=", "") == "true":
+          deps=true
+        else:
+          deps=false
       else:
         discard line
     except EOFError:
@@ -78,9 +87,36 @@ proc nuildFile() =
   else:
     buildString = (buildString & buildFile)   
   
+proc depCheck() =
+  if deps == false:
+    white("\nNo dependencies found\n")
+  else:
+    white("\nInstalling dependencies, this may take a bit\n")
+    let (pkgs, errn) = execCmdEx("nimble list -i")
+    while true:
+      try:
+        var line: string
+        line = readLine(depConf)
+        if line.contains("#"):
+          discard
+        else:
+          if pkgs.contains(line):
+            green("[+] " & line & " already installed...skipping")
+            continue
+          else:
+            yellow("[!]Installing " & line)
+            let (output, errn) = execCmdEx("nimble install -y " & line)
+            if errn != 0:
+              red(output)
+            else:
+              green("[+]Installed " & line)
+      except EOFError:
+        break
+
 proc main() =
-  white("Reading Configuration File\n\n")
+  white("Reading Configuration File\n")
   readConf()
+  depCheck()
   nuildFile()
   white("build string: " & buildString & "\n")
   sleep(2000)
