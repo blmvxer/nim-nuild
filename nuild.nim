@@ -3,17 +3,17 @@ import strutils, osproc, os, fab
 var
   build = open("build.conf", fmRead)
   depConf = open("deps.conf", fmRead)
-  ssl: string
   opt: string
   compiler: string
   threads: string
   binName: string
-  buildType: string
   buildFile: string
   installDir: string
   termux: bool
   deps: bool
+  buildType: bool
   buildString = "nim "
+  ssl: bool
   objCheck: bool
   fieldCheck: bool
   rangeCheck: bool
@@ -39,9 +39,9 @@ proc readConf() =
       elif line.contains("cc="):
         compiler = line.replace("cc=", "")
       elif line.contains("release="):
-        buildType = line.replace("release=", "")
+        buildType = parseBool(line.replace("release=", ""))
       elif line.contains("ssl="):
-        ssl = line.replace("ssl=", "")
+        ssl = parseBool(line.replace("ssl=", ""))
       elif line.contains("opt="):
         opt = line.replace("opt=", "")
         if opt == "speed":
@@ -56,38 +56,27 @@ proc readConf() =
         else:
           threads = ""
       elif line.contains("termux="):
-        if line.replace("termux=", "") == "true":
-          termux=true
-        else:
-          termux=false
+        termux = parseBool(line.replace("termux=", ""))
       elif line.contains("install="):
         installDir = line.replace("install=", "")
       elif line.contains("deps="):
-        if line.replace("deps=", "") == "false":
-          deps=false
-        elif line.replace("deps=", "") == "true":
-          deps=true
-        else:
-          deps=false
+        deps = parseBool(line.replace("deps=", ""))
       else:
         discard line
     except EOFError:
       break
 
 proc nuildFile() =
-  if ssl.isEmptyOrWhitespace:
-    discard
-  else:
+  if ssl == true:
     buildString = (buildString & "-d:ssl ")
-  if buildType.isEmptyOrWhitespace:
-    discard
   else:
-    if buildType == "true":
-      buildString = (buildString & "-d:release ")
-    elif buildType == "false":
-      buildString = (buildString & "-d:debug ")
-    else:
-      discard
+    discard
+  if buildType == true:
+    buildString = (buildString & "-d:release ")
+  elif buildType == false:
+    buildString = (buildString & "-d:debug ")
+  else:
+    discard
   if compiler.isEmptyOrWhitespace:
     discard
   else:
