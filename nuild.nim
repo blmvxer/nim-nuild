@@ -1,5 +1,9 @@
 import strutils, osproc, os, fab
 
+if existsFile("build.conf") == false or existsFile("deps.conf") == false :
+  red("[!]Missing build.conf or deps.conf")
+  quit(1)
+
 var
   opt: string
   compiler: string
@@ -155,4 +159,6 @@ proc main() =
         quit(0)
       except:
         red("[!]Error during installation")
+
 main()
+
