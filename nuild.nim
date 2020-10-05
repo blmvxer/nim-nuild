@@ -6,6 +6,7 @@ var
   ssl: string
   opt: string
   compiler: string
+  threads: string
   binName: string
   buildType: string
   buildFile: string
@@ -13,6 +14,17 @@ var
   termux: bool
   deps: bool
   buildString = "nim "
+  objCheck: bool
+  fieldCheck: bool
+  rangeCheck: bool
+  boundCheck: bool
+  overflowCheck: bool
+  floatCheck: bool
+  nanCheck: bool
+  infCheck: bool
+  nilCheck: bool
+  refCheck: bool
+
 
 proc readConf() =
   while true:
@@ -38,12 +50,14 @@ proc readConf() =
           discard
         else:
           opt = ""
-          red("[!]Nuild read config error, opt=")
+      elif line.contains("threads="):
+        if line.replace("threads=" , "") == "on":
+          threads = "--threads:on"
+        else:
+          threads = ""
       elif line.contains("termux="):
         if line.replace("termux=", "") == "true":
           termux=true
-        elif line.replace("termux=", "") == "false":
-          termux=false
         else:
           termux=false
       elif line.contains("install="):
@@ -82,6 +96,10 @@ proc nuildFile() =
     discard
   else:
     buildString = (buildString & "--opt:" & opt & " ")
+  if threads. isEmptyOrWhitespace:
+    discard
+  else:
+    buildString = (buildString & threads & " ")
   if buildFile.isEmptyOrWhitespace:
     discard
   else:
