@@ -94,6 +94,14 @@ proc nuildFile() =
     discard
   else:
     buildString = (buildString & threads & " ")
+  if lineTrace == false:
+    discard
+  else:
+    buildString = (buildString & "--lineTrace:on ")
+  if stackTrace == false:
+    discard
+  else:
+    buildString = (buildString & "--stackTrace:on ")
   if buildFile.isEmptyOrWhitespace:
     discard
   else:
